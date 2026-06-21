@@ -5,6 +5,8 @@ from app.config.dependencies import get_db
 
 from app.models.repository import Repository
 from app.models.project import Project
+from app.models.developer_metric import DeveloperMetric
+from app.services.metrics_service import calculate_developer_metrics
 
 from app.schemas.repository_schema import RepositoryCreate
 
@@ -138,3 +140,82 @@ def sync_commits(
         "message": "Commits synchronized",
         "saved_commits": saved_count
     }
+@router.post("/{repository_id}/generate-metrics")
+def generate_metrics(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    commits = db.query(
+        Commit
+    ).filter(
+        Commit.repository_id == repository_id
+    ).all()
+
+    if not commits:
+        return {
+            "message": "No commits found"
+        }
+
+    metrics = calculate_developer_metrics(
+        commits
+    )
+
+    db.query(
+        DeveloperMetric
+    ).filter(
+        DeveloperMetric.repository_id == repository_id
+    ).delete()
+
+    for developer, total_commits in metrics.items():
+
+        activity_score = min(
+            total_commits * 5,
+            100
+        )
+
+        last_commit = None
+
+        for commit in commits:
+            if commit.author_name == developer:
+                last_commit = commit.commit_date
+
+        metric = DeveloperMetric(
+            repository_id=repository_id,
+            developer_name=developer,
+            total_commits=total_commits,
+            activity_score=activity_score,
+            last_active=last_commit
+        )
+
+        db.add(metric)
+
+    db.commit()
+
+    return {
+        "message": "Metrics generated successfully"
+    }
+@router.get("/{repository_id}/metrics")
+def get_metrics(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    metrics = db.query(
+        DeveloperMetric
+    ).filter(
+        DeveloperMetric.repository_id == repository_id
+    ).all()
+
+    result = []
+
+    for metric in metrics:
+
+        result.append({
+            "developer_name": metric.developer_name,
+            "total_commits": metric.total_commits,
+            "activity_score": metric.activity_score,
+            "last_active": metric.last_active
+        })
+
+    return result
