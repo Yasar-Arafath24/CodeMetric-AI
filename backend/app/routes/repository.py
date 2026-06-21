@@ -7,7 +7,12 @@ from app.models.repository import Repository
 from app.models.project import Project
 from app.models.developer_metric import DeveloperMetric
 from app.services.metrics_service import calculate_developer_metrics
+from app.models.repository_health import RepositoryHealth
+from app.models.developer_metric import DeveloperMetric
 
+from app.services.health_service import (
+    calculate_health_score
+)
 from app.schemas.repository_schema import RepositoryCreate
 
 router = APIRouter(
@@ -219,3 +224,98 @@ def get_metrics(
         })
 
     return result
+@router.post("/{repository_id}/generate-health")
+def generate_health(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    metrics = db.query(
+        DeveloperMetric
+    ).filter(
+        DeveloperMetric.repository_id == repository_id
+    ).all()
+
+    if not metrics:
+        return {
+            "message": "Generate metrics first"
+        }
+
+    total_commits = sum(
+        metric.total_commits
+        for metric in metrics
+    )
+
+    contributors = len(metrics)
+
+    score = calculate_health_score(
+        total_commits,
+        contributors
+    )
+
+    activity_level = "Low"
+
+    if total_commits >= 20:
+        activity_level = "Medium"
+
+    if total_commits >= 50:
+        activity_level = "High"
+
+    status = "Needs Attention"
+
+    if score >= 50:
+        status = "Good"
+
+    if score >= 80:
+        status = "Healthy"
+
+    existing = db.query(
+        RepositoryHealth
+    ).filter(
+        RepositoryHealth.repository_id == repository_id
+    ).first()
+
+    if existing:
+        db.delete(existing)
+        db.commit()
+
+    health = RepositoryHealth(
+        repository_id=repository_id,
+        total_commits=total_commits,
+        contributors=contributors,
+        health_score=score,
+        activity_level=activity_level,
+        status=status
+    )
+
+    db.add(health)
+    db.commit()
+
+    return {
+        "message": "Repository health generated"
+    }
+@router.get("/{repository_id}/health")
+def get_health(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    health = db.query(
+        RepositoryHealth
+    ).filter(
+        RepositoryHealth.repository_id == repository_id
+    ).first()
+
+    if not health:
+        return {
+            "message": "Health score not generated"
+        }
+
+    return {
+        "repository_id": health.repository_id,
+        "health_score": health.health_score,
+        "status": health.status,
+        "activity_level": health.activity_level,
+        "contributors": health.contributors,
+        "total_commits": health.total_commits
+    }

@@ -15,6 +15,7 @@ from app.models.repository import Repository
 from app.routes.repository import router as repository_router
 from app.models.commit import Commit
 from app.models.developer_metric import DeveloperMetric
+from app.models.repository_health import RepositoryHealth
 print("PROJECT ROUTER IMPORTED")
 
 Base.metadata.create_all(bind=engine)
