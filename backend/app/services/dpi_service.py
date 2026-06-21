@@ -1,15 +1,25 @@
 def calculate_dpi(
-    commits,
+    total_commits,
     activity_score
 ):
 
-    dpi = (
-        commits * 4
-    ) + (
-        activity_score * 0.6
+    contribution_score = min(
+        total_commits * 2,
+        100
     )
 
-    return min(
-        int(dpi),
+    consistency_score = min(
+        total_commits * 3,
         100
+    )
+
+    dpi_score = (
+        activity_score * 0.4
+        + consistency_score * 0.4
+        + contribution_score * 0.2
+    )
+
+    return round(
+        dpi_score,
+        2
     )

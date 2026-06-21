@@ -1,4 +1,11 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    ForeignKey,
+    DateTime,
+    Float
+)
 from datetime import datetime
 
 from app.models.base import Base
@@ -24,7 +31,7 @@ class DeveloperDPI(Base):
     )
 
     dpi_score = Column(
-        Integer,
+        Float,
         default=0
     )
 

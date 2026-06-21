@@ -11,6 +11,8 @@ from app.models.repository_health import RepositoryHealth
 from app.models.developer_metric import DeveloperMetric
 from fastapi import BackgroundTasks
 from app.tasks.background_tasks import sync_repository_commits
+from app.models.developer_dpi import DeveloperDPI
+from app.services.dpi_service import calculate_dpi
 
 from app.services.health_service import (
     calculate_health_score
@@ -475,3 +477,113 @@ def sync_background(
     return {
         "message": "Background sync started"
     }
+@router.post("/{repository_id}/generate-dpi")
+def generate_dpi(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    metrics = db.query(
+        DeveloperMetric
+    ).filter(
+        DeveloperMetric.repository_id == repository_id
+    ).all()
+
+    if not metrics:
+        return {
+            "message": "Generate metrics first"
+        }
+
+    db.query(
+        DeveloperDPI
+    ).filter(
+        DeveloperDPI.repository_id == repository_id
+    ).delete()
+
+    for metric in metrics:
+
+        dpi_score = calculate_dpi(
+            metric.total_commits,
+            metric.activity_score
+        )
+
+        category = "Low"
+
+        if dpi_score >= 50:
+            category = "Medium"
+
+        if dpi_score >= 80:
+            category = "High"
+
+        dpi = DeveloperDPI(
+            repository_id=repository_id,
+            developer_name=metric.developer_name,
+            dpi_score=dpi_score,
+            category=category
+        )
+
+        db.add(dpi)
+
+    db.commit()
+
+    return {
+        "message": "DPI generated successfully"
+    }
+@router.get("/{repository_id}/dpi")
+def get_dpi(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    records = db.query(
+        DeveloperDPI
+    ).filter(
+        DeveloperDPI.repository_id == repository_id
+    ).all()
+
+    result = []
+
+    for item in records:
+
+        result.append({
+            "developer_name": item.developer_name,
+            "dpi_score": item.dpi_score,
+            "category": item.category
+        })
+
+    return result
+@router.get("/{repository_id}/leaderboard")
+def leaderboard(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    developers = (
+        db.query(
+            DeveloperDPI
+        )
+        .filter(
+            DeveloperDPI.repository_id == repository_id
+        )
+        .order_by(
+            DeveloperDPI.dpi_score.desc()
+        )
+        .all()
+    )
+
+    result = []
+
+    rank = 1
+
+    for developer in developers:
+
+        result.append({
+            "rank": rank,
+            "developer_name": developer.developer_name,
+            "dpi_score": developer.dpi_score,
+            "category": developer.category
+        })
+
+        rank += 1
+
+    return result
