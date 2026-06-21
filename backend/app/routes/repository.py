@@ -12,6 +12,11 @@ router = APIRouter(
     prefix="/repositories",
     tags=["Repositories"]
 )
+from app.models.commit import Commit
+from app.services.github_service import (
+    get_repo_commits,
+    extract_owner_repo
+)
 @router.post("/connect")
 def connect_repository(
     repository: RepositoryCreate,
@@ -74,3 +79,62 @@ def get_all_repositories(
         })
 
     return result
+@router.post("/{repository_id}/sync-commits")
+def sync_commits(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    repository = db.query(
+        Repository
+    ).filter(
+        Repository.id == repository_id
+    ).first()
+
+    if not repository:
+        return {
+            "message": "Repository not found"
+        }
+
+    owner, repo = extract_owner_repo(
+        repository.repo_url
+    )
+
+    commits = get_repo_commits(
+        owner,
+        repo
+    )
+
+    saved_count = 0
+
+    for item in commits:
+
+        sha = item["sha"]
+
+        existing_commit = db.query(
+            Commit
+        ).filter(
+            Commit.commit_sha == sha
+        ).first()
+
+        if existing_commit:
+            continue
+
+        new_commit = Commit(
+            repository_id=repository.id,
+            commit_sha=sha,
+            author_name=item["commit"]["author"]["name"],
+            commit_message=item["commit"]["message"],
+            commit_date=item["commit"]["author"]["date"]
+        )
+
+        db.add(new_commit)
+
+        saved_count += 1
+
+    db.commit()
+
+    return {
+        "message": "Commits synchronized",
+        "saved_commits": saved_count
+    }

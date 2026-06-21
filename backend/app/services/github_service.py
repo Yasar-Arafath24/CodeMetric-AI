@@ -11,3 +11,13 @@ def get_repo_commits(owner, repo):
         return []
 
     return response.json()
+
+
+def extract_owner_repo(repo_url):
+
+    parts = repo_url.rstrip("/").split("/")
+
+    owner = parts[-2]
+    repo = parts[-1]
+
+    return owner, repo
