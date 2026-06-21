@@ -9,6 +9,8 @@ from app.models.developer_metric import DeveloperMetric
 from app.services.metrics_service import calculate_developer_metrics
 from app.models.repository_health import RepositoryHealth
 from app.models.developer_metric import DeveloperMetric
+from fastapi import BackgroundTasks
+from app.tasks.background_tasks import sync_repository_commits
 
 from app.services.health_service import (
     calculate_health_score
@@ -459,3 +461,17 @@ def get_dpi(
         })
 
     return result
+@router.post("/{repository_id}/sync-background")
+def sync_background(
+    repository_id: int,
+    background_tasks: BackgroundTasks
+):
+
+    background_tasks.add_task(
+        sync_repository_commits,
+        repository_id
+    )
+
+    return {
+        "message": "Background sync started"
+    }
