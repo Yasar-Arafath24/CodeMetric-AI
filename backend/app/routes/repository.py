@@ -319,3 +319,61 @@ def get_health(
         "contributors": health.contributors,
         "total_commits": health.total_commits
     }
+@router.get("/{repository_id}/top-contributors")
+def get_top_contributors(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    contributors = (
+        db.query(
+            DeveloperMetric
+        )
+        .filter(
+            DeveloperMetric.repository_id == repository_id
+        )
+        .order_by(
+            DeveloperMetric.total_commits.desc()
+        )
+        .limit(10)
+        .all()
+    )
+
+    if not contributors:
+        return {
+            "message": "No contributor metrics found"
+        }
+
+    total_repo_commits = sum(
+        contributor.total_commits
+        for contributor in contributors
+    )
+
+    result = []
+
+    rank = 1
+
+    for contributor in contributors:
+
+        percentage = 0
+
+        if total_repo_commits > 0:
+            percentage = round(
+                (
+                    contributor.total_commits
+                    / total_repo_commits
+                ) * 100,
+                2
+            )
+
+        result.append({
+            "rank": rank,
+            "developer_name": contributor.developer_name,
+            "total_commits": contributor.total_commits,
+            "activity_score": contributor.activity_score,
+            "contribution_percentage": percentage
+        })
+
+        rank += 1
+
+    return result
