@@ -24,6 +24,11 @@ from app.services.github_service import (
     get_repo_commits,
     extract_owner_repo
 )
+from app.models.developer_dpi import DeveloperDPI
+
+from app.services.dpi_service import (
+    calculate_dpi
+)
 @router.post("/connect")
 def connect_repository(
     repository: RepositoryCreate,
@@ -375,5 +380,82 @@ def get_top_contributors(
         })
 
         rank += 1
+
+    return result
+@router.post("/{repository_id}/generate-dpi")
+def generate_dpi(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    metrics = db.query(
+        DeveloperMetric
+    ).filter(
+        DeveloperMetric.repository_id == repository_id
+    ).all()
+
+    if not metrics:
+        return {
+            "message": "Generate metrics first"
+        }
+
+    db.query(
+        DeveloperDPI
+    ).filter(
+        DeveloperDPI.repository_id == repository_id
+    ).delete()
+
+    for metric in metrics:
+
+        dpi_score = calculate_dpi(
+            metric.total_commits,
+            metric.activity_score
+        )
+
+        category = "Low Performer"
+
+        if dpi_score >= 50:
+            category = "Average Performer"
+
+        if dpi_score >= 80:
+            category = "High Performer"
+
+        dpi = DeveloperDPI(
+            repository_id=repository_id,
+            developer_name=metric.developer_name,
+            dpi_score=dpi_score,
+            category=category
+        )
+
+        db.add(dpi)
+
+    db.commit()
+
+    return {
+        "message": "Developer DPI generated"
+    }
+@router.get("/{repository_id}/dpi")
+def get_dpi(
+    repository_id: int,
+    db: Session = Depends(get_db)
+):
+
+    dpi_data = db.query(
+        DeveloperDPI
+    ).filter(
+        DeveloperDPI.repository_id == repository_id
+    ).order_by(
+        DeveloperDPI.dpi_score.desc()
+    ).all()
+
+    result = []
+
+    for developer in dpi_data:
+
+        result.append({
+            "developer_name": developer.developer_name,
+            "dpi_score": developer.dpi_score,
+            "category": developer.category
+        })
 
     return result
