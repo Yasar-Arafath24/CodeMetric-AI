@@ -1,48 +1,32 @@
-import { Link } from "react-router-dom";
-
 function Sidebar() {
   return (
     <div
-      className="bg-dark text-white p-3"
       style={{
         width: "250px",
-        minHeight: "100vh"
+        minHeight: "100vh",
+        background: "#111827",
+        color: "white",
+        padding: "20px"
       }}
     >
-      <h3>CodeMetric AI</h3>
+      <h2>🚀 CodeMetric AI</h2>
 
       <hr />
 
-      <div className="d-flex flex-column gap-3">
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px"
+        }}
+      >
+        <div>📊 Dashboard</div>
 
-        <Link
-          to="/dashboard"
-          className="text-white text-decoration-none"
-        >
-          Dashboard
-        </Link>
+        <div>📈 Analytics</div>
 
-        <Link
-          to="/analytics"
-          className="text-white text-decoration-none"
-        >
-          Analytics
-        </Link>
+        <div>🏆 Leaderboard</div>
 
-        <Link
-          to="/leaderboard"
-          className="text-white text-decoration-none"
-        >
-          Leaderboard
-        </Link>
-
-        <Link
-          to="/insights"
-          className="text-white text-decoration-none"
-        >
-          AI Insights
-        </Link>
-
+        <div>🤖 AI Insights</div>
       </div>
     </div>
   );
