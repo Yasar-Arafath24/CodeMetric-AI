@@ -12,26 +12,44 @@ function CommitChart({ data }) {
   return (
     <div
       style={{
-        background: "#fff",
-        padding: "20px",
-        borderRadius: "12px",
-        marginTop: "20px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+        width: "100%",
+        height: "320px",
       }}
     >
-      <h2>Developer Commits</h2>
-
-      <ResponsiveContainer width="100%" height={350}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="developer_name" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="total_commits" />
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <CartesianGrid stroke="var(--border-glass)" strokeDasharray="3 3" vertical={false} />
+          <XAxis
+            dataKey="developer_name"
+            stroke="var(--text-muted)"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            stroke="var(--text-muted)"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip
+            contentStyle={{
+              background: "var(--bg-glass)",
+              borderColor: "var(--border-glass)",
+              borderRadius: "8px",
+              color: "var(--text-primary)"
+            }}
+          />
+          <Bar
+            dataKey="total_commits"
+            fill="var(--accent)"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={45}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
   );
 }
 
-export default CommitChart;
+export default CommitChart;

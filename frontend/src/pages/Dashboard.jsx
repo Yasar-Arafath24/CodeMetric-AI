@@ -1,237 +1,100 @@
-import { useEffect, useState } from "react";
-import api from "../api/api";
-
-import CommitChart from "../components/CommitChart";
+import { useOutletContext } from "react-router-dom";
 import StatsCard from "../components/StatsCard";
 import HealthGauge from "../components/HealthGauge";
-import DPIChart from "../components/DPIChart";
-import Sidebar from "../components/Sidebar";
+import TopPerformerCard from "../components/TopPerformerCard";
+import RiskDeveloperPanel from "../components/RiskDeveloperPanel";
+import AIExecutiveSummary from "../components/AIExecutiveSummary";
+import ActivityHeatmap from "../components/ActivityHeatmap";
+import LeaderboardTable from "../components/LeaderboardTable";
+import DeveloperSimulator from "../components/DeveloperSimulator";
 
 function Dashboard() {
-  const [data, setData] = useState(null);
+  const { repoData } = useOutletContext();
 
-  useEffect(() => {
-    api
-      .get("/dashboard/1")
-      .then((res) => {
-        console.log(res.data);
-        setData(res.data);
-      })
-      .catch((err) => {
-        console.error("Dashboard Error:", err);
-      });
-  }, []);
-
-  if (!data) {
+  if (!repoData) {
     return (
-      <div style={{ padding: "30px" }}>
-        <h2>Loading Dashboard...</h2>
+      <div className="glass-panel" style={{ padding: "40px", textAlign: "center" }}>
+        <h2 style={{ color: "var(--text-muted)", fontSize: "20px" }}>
+          No repository data found. Please connect a public repository to start monitoring.
+        </h2>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-      }}
-    >
-      <Sidebar />
-
-      <div
+    <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
+      {/* SECTION 1: KPI Grid */}
+      <section
         style={{
-          flex: 1,
-          padding: "30px",
-          fontFamily: "Arial, sans-serif",
-          overflowX: "auto",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: "20px"
         }}
       >
-        <h1>🚀 CodeMetric AI Dashboard</h1>
-
-        <hr />
-
-        <h2>{data.repository}</h2>
-
-        <p>
-          <strong>Owner:</strong> {data.owner}
-        </p>
-
-        <p>
-          <strong>Repository URL:</strong>{" "}
-          <a
-            href={data.repo_url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {data.repo_url}
-          </a>
-        </p>
-
-        <hr />
-
-        {/* KPI CARDS */}
-
-        <div
-          style={{
-            display: "flex",
-            gap: "20px",
-            flexWrap: "wrap",
-            marginTop: "20px",
-            marginBottom: "30px",
-          }}
-        >
-          <StatsCard
-            title="Total Commits"
-            value={data.commits}
-          />
-
-          <StatsCard
-            title="Developers"
-            value={data.developers}
-          />
-
-          <HealthGauge
-            score={data.health_score}
-          />
-        </div>
-
-        <hr />
-
-        {/* COMMIT CHART */}
-
-        <h2>📊 Top Contributors</h2>
-
-        <CommitChart
-          data={data.contributors || []}
+        <StatsCard
+          title="Total Commits"
+          value={repoData.commits}
+          icon="💻"
+          color="indigo"
         />
 
-        <hr />
-
-        {/* DPI CHART */}
-
-        <h2>🔥 Developer Productivity Index</h2>
-
-        <DPIChart
-          data={data.dpi_scores || []}
+        <StatsCard
+          title="Developers"
+          value={repoData.developers}
+          icon="👥"
+          color="purple"
         />
 
-        <hr />
+        <HealthGauge
+          score={repoData.health_score}
+        />
 
-        {/* CONTRIBUTORS TABLE */}
+        <TopPerformerCard
+          contributors={repoData.contributors}
+          dpiScores={repoData.dpi_scores}
+        />
+      </section>
 
-        <h2>👨‍💻 Contributor Details</h2>
+      {/* SECTION 2: AI Summary & Risk Panel */}
+      <section
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+          gap: "25px",
+          alignItems: "stretch"
+        }}
+      >
+        <AIExecutiveSummary
+          insights={repoData.ai_insights}
+        />
 
-        <table
-          border="1"
-          cellPadding="10"
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            marginTop: "15px",
-          }}
-        >
-          <thead>
-            <tr>
-              <th>Developer</th>
-              <th>Total Commits</th>
-            </tr>
-          </thead>
+        <RiskDeveloperPanel
+          bottlenecks={repoData.bottlenecks}
+        />
+      </section>
 
-          <tbody>
-            {data.contributors?.map((dev, index) => (
-              <tr key={index}>
-                <td>{dev.developer_name}</td>
-                <td>{dev.total_commits}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* SECTION 3: Heatmap */}
+      <section>
+        <ActivityHeatmap
+          commitsCount={repoData.commits}
+        />
+      </section>
 
-        <hr />
+      {/* SECTION 3.5: AI Metric Simulator & Copilot (Unique Feature) */}
+      <section>
+        <DeveloperSimulator repoData={repoData} />
+      </section>
 
-        {/* DPI TABLE */}
-
-        <h2>📈 DPI Scores</h2>
-
-        <table
-          border="1"
-          cellPadding="10"
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            marginTop: "15px",
-          }}
-        >
-          <thead>
-            <tr>
-              <th>Developer</th>
-              <th>DPI Score</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {data.dpi_scores?.map((dpi, index) => (
-              <tr key={index}>
-                <td>{dpi.developer_name}</td>
-                <td>{dpi.dpi_score}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <hr />
-
-        {/* BOTTLENECKS */}
-
-        <h2>⚠️ Bottlenecks</h2>
-
-        {data.bottlenecks?.map((item, index) => (
-          <div
-            key={index}
-            style={{
-              background: "#fff3cd",
-              padding: "12px",
-              marginBottom: "10px",
-              borderRadius: "8px",
-            }}
-          >
-            <strong>{item.developer_name}</strong>
-            <br />
-            {item.reason}
-          </div>
-        ))}
-
-        <hr />
-
-        {/* AI INSIGHTS */}
-
-        <h2>🤖 AI Insights</h2>
-
-        {data.ai_insights?.map((insight, index) => (
-          <div
-            key={index}
-            style={{
-              background: "#e7f5ff",
-              padding: "12px",
-              marginBottom: "12px",
-              borderRadius: "8px",
-            }}
-          >
-            <strong>
-              {insight.developer_name}
-            </strong>
-
-            <p>{insight.insight}</p>
-
-            <small>
-              {insight.created_at}
-            </small>
-          </div>
-        ))}
-      </div>
+      {/* SECTION 4: Developer Rankings */}
+      <section>
+        <LeaderboardTable
+          contributors={repoData.contributors}
+          dpiScores={repoData.dpi_scores}
+        />
+      </section>
     </div>
   );
 }
 
 export default Dashboard;
+

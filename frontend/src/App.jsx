@@ -1,46 +1,35 @@
 import { Routes, Route } from "react-router-dom";
-
+import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
-
-function Analytics() {
-  return <h1>Analytics Page</h1>;
-}
-
-function Leaderboard() {
-  return <h1>Leaderboard Page</h1>;
-}
-
-function Insights() {
-  return <h1>AI Insights Page</h1>;
-}
+import Analytics from "./pages/Analytics";
+import Leaderboard from "./pages/Leaderboard";
+import Insights from "./pages/Insights";
 
 function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<Dashboard />}
-      />
-
-      <Route
-        path="/dashboard"
-        element={<Dashboard />}
-      />
-
-      <Route
-        path="/analytics"
-        element={<Analytics />}
-      />
-
-      <Route
-        path="/leaderboard"
-        element={<Leaderboard />}
-      />
-
-      <Route
-        path="/insights"
-        element={<Insights />}
-      />
+      <Route element={<DashboardLayout />}>
+        <Route
+          path="/"
+          element={<Dashboard />}
+        />
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+        <Route
+          path="/analytics"
+          element={<Analytics />}
+        />
+        <Route
+          path="/leaderboard"
+          element={<Leaderboard />}
+        />
+        <Route
+          path="/insights"
+          element={<Insights />}
+        />
+      </Route>
     </Routes>
   );
 }

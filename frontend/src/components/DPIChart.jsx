@@ -13,24 +13,38 @@ function DPIChart({ data }) {
     <div
       style={{
         width: "100%",
-        height: "400px",
-        marginTop: "20px"
+        height: "320px",
       }}
     >
-      <ResponsiveContainer>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <CartesianGrid stroke="var(--border-glass)" strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey="developer_name"
+            stroke="var(--text-muted)"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
           />
-
-          <YAxis />
-
-          <Tooltip />
-
+          <YAxis
+            stroke="var(--text-muted)"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip
+            contentStyle={{
+              background: "var(--bg-glass)",
+              borderColor: "var(--border-glass)",
+              borderRadius: "8px",
+              color: "var(--text-primary)"
+            }}
+          />
           <Bar
             dataKey="dpi_score"
+            fill="var(--accent-light)"
+            radius={[4, 4, 0, 0]}
+            maxBarSize={45}
           />
         </BarChart>
       </ResponsiveContainer>
@@ -38,4 +52,4 @@ function DPIChart({ data }) {
   );
 }
 
-export default DPIChart;
+export default DPIChart;
