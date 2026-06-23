@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import api from "../api/api";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaBars } from "react-icons/fa";
 
 function DashboardLayout() {
   const [repos, setRepos] = useState([]);
@@ -14,6 +14,9 @@ function DashboardLayout() {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("theme") || "dark";
   });
+
+  // Mobile navigation state
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // Import Repo Modal/Form State
   const [showImportForm, setShowImportForm] = useState(false);
@@ -206,23 +209,21 @@ function DashboardLayout() {
   };
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="app-layout">
       {/* Sidebar navigation */}
-      <Sidebar />
+      <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+
+      {/* Backdrop overlay for mobile sidebar */}
+      <div
+        className={`app-sidebar-overlay ${mobileOpen ? "active" : ""}`}
+        onClick={() => setMobileOpen(false)}
+      />
 
       {/* Main Content Area */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100vh",
-          padding: "30px",
-          overflowY: "auto",
-        }}
-      >
+      <div className="app-main-container">
         {/* Top Header Bar */}
         <header
+          className="layout-header"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -234,17 +235,26 @@ function DashboardLayout() {
             gap: "15px"
           }}
         >
-          <div>
-            <h1 style={{ fontSize: "28px", margin: 0, fontWeight: 700, letterSpacing: "-0.5px" }}>
-              {getPageTitle()}
-            </h1>
-            <p style={{ fontSize: "14px", color: "var(--text-muted)", marginTop: "4px" }}>
-              {repoData ? `Active Repo: ${repoData.repository} (${repoData.owner})` : "No active repository"}
-            </p>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button
+              className="hamburger-toggle"
+              onClick={() => setMobileOpen(true)}
+              title="Open Sidebar Menu"
+            >
+              <FaBars />
+            </button>
+            <div>
+              <h1 style={{ fontSize: "28px", margin: 0, fontWeight: 700, letterSpacing: "-0.5px" }}>
+                {getPageTitle()}
+              </h1>
+              <p style={{ fontSize: "14px", color: "var(--text-muted)", marginTop: "4px" }}>
+                {repoData ? `Active Repo: ${repoData.repository} (${repoData.owner})` : "No active repository"}
+              </p>
+            </div>
           </div>
 
           {/* Repo Selector and Theme Toggle */}
-          <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
+          <div className="header-actions" style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
             
             {/* Repository Dropdown Selector */}
             <div style={{ position: "relative" }}>

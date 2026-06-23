@@ -59,7 +59,7 @@ function Dashboard() {
       <section
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))",
           gap: "25px",
           alignItems: "stretch"
         }}

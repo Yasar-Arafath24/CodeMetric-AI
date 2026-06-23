@@ -290,3 +290,161 @@ body.light-mode select option {
   background-color: #FFFFFF;
   color: #0F172A;
 }
+
+/* ==========================================
+   CodeMetric AI - Mobile Responsiveness Styles
+   ========================================== */
+
+/* Main Layout flex parent wrapper */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Sidebar Overlay Backdrop on Mobile */
+.app-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999;
+}
+
+.app-sidebar-overlay.active {
+  display: block;
+}
+
+/* Base app sidebar style */
+.app-sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: var(--bg-sidebar);
+  color: var(--text-sidebar);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-glass);
+  transition: var(--transition-smooth);
+}
+
+/* Close button on sidebar drawer (hidden on desktop) */
+.app-sidebar-close-btn {
+  display: none;
+  border: 1px solid var(--border-glass);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: var(--transition-smooth);
+  margin-left: auto;
+}
+
+.app-sidebar-close-btn:hover {
+  background: var(--bg-glass-hover);
+}
+
+/* Content Panel Wrapper */
+.app-main-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 30px;
+  overflow-y: auto;
+  transition: var(--transition-smooth);
+}
+
+/* Hamburger toggle in Header */
+.hamburger-toggle {
+  display: none;
+  border: 1px solid var(--border-glass);
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-premium);
+}
+
+.hamburger-toggle:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--accent);
+}
+
+/* Media Queries for Layout Responsiveness */
+@media (max-width: 1024px) {
+  .app-main-container {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .app-sidebar.active {
+    transform: translateX(0);
+  }
+
+  .app-sidebar-close-btn {
+    display: flex;
+  }
+
+  .hamburger-toggle {
+    display: flex;
+  }
+  
+  .layout-header {
+    margin-bottom: 20px !important;
+    padding-bottom: 15px !important;
+  }
+}
+
+@media (max-width: 580px) {
+  .app-main-container {
+    padding: 16px;
+  }
+
+  .layout-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+  }
+  
+  .header-actions select {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .header-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+}
+

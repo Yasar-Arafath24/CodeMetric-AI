@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
+import { FaTimes } from "react-icons/fa";
 import Logo from "./Logo";
 
-function Sidebar() {
+function Sidebar({ mobileOpen, onClose }) {
   const links = [
     { path: "/dashboard", label: "Dashboard", icon: "📊" },
     { path: "/analytics", label: "Analytics", icon: "📈" },
@@ -11,6 +12,7 @@ function Sidebar() {
 
   return (
     <div
+      className={`app-sidebar ${mobileOpen ? "active" : ""}`}
       style={{
         width: "260px",
         minHeight: "100vh",
@@ -23,11 +25,20 @@ function Sidebar() {
         transition: "var(--transition-smooth)"
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "35px" }}>
-        <Logo size={32} />
-        <h2 style={{ fontSize: "20px", fontWeight: 700, color: "var(--text-primary)", margin: 0, letterSpacing: "-0.5px" }}>
-          CodeMetric AI
-        </h2>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", marginBottom: "35px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Logo size={32} />
+          <h2 style={{ fontSize: "20px", fontWeight: 700, color: "var(--text-primary)", margin: 0, letterSpacing: "-0.5px" }}>
+            CodeMetric AI
+          </h2>
+        </div>
+        <button
+          className="app-sidebar-close-btn"
+          onClick={onClose}
+          title="Close Sidebar Menu"
+        >
+          <FaTimes />
+        </button>
       </div>
 
       <nav
@@ -41,6 +52,7 @@ function Sidebar() {
           <NavLink
             key={link.path}
             to={link.path}
+            onClick={onClose}
             style={({ isActive }) => ({
               display: "flex",
               alignItems: "center",

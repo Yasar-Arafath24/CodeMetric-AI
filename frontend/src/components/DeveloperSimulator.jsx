@@ -281,7 +281,7 @@ function DeveloperSimulator({ repoData }) {
           </div>
 
           {/* Sliders Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", borderBottom: "1px solid var(--border-glass)", paddingBottom: "20px" }}>
+          <div className="simulator-sliders-grid" style={{ display: "grid", gap: "20px", borderBottom: "1px solid var(--border-glass)", paddingBottom: "20px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "6px" }}>
@@ -413,7 +413,7 @@ function DeveloperSimulator({ repoData }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "25px" }}>
           
           {/* Simulation Output Cards */}
-          <div className="glass-panel" style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: "20px", alignItems: "center" }}>
+          <div className="glass-panel simulator-success-card" style={{ display: "grid", gap: "20px", alignItems: "center" }}>
             
             {/* Animated Circular success dial */}
             <div style={{ position: "relative", width: "90px", height: "90px", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -602,9 +602,31 @@ function DeveloperSimulator({ repoData }) {
       </div>
       
       <style>{`
+        .simulator-sliders-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .simulator-success-card {
+          grid-template-columns: 100px 1fr;
+        }
         @media (max-width: 900px) {
           .simulator-layout {
             grid-template-columns: 1fr !important;
+          }
+        }
+        @media (max-width: 580px) {
+          .simulator-sliders-grid {
+            grid-template-columns: 1fr !important;
+            gap: 15px !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .simulator-success-card {
+            grid-template-columns: 1fr !important;
+            text-align: center;
+            justify-items: center;
+          }
+          .simulator-success-card > div {
+            margin: 0 auto;
           }
         }
       `}</style>
